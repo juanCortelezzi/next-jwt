@@ -5,7 +5,7 @@ import { Button, TextField, Grid, Typography, Snackbar } from "@material-ui/core
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function SignUp() {
+export default function LogIn() {
   const router = useRouter();
   const [alertOpen, setAlertOpen] = useState<[boolean, string]>([false, ""]);
 
@@ -15,9 +15,8 @@ export default function SignUp() {
 
   const { register, handleSubmit, errors } = useForm();
 
-  const onSubmit = async (data: { name: string; email: string; password: string }) => {
-    const { resStatus, msg } = await signUp({
-      name: data.name,
+  const onSubmit = async (data: { email: string; password: string }) => {
+    const { resStatus, msg, authToken } = await logIn({
       email: data.email,
       pass: data.password,
     });
@@ -31,29 +30,30 @@ export default function SignUp() {
         errorMsg = msg;
       }
       setAlertOpen([true, errorMsg]);
+    } else {
+      console.log(authToken);
     }
   };
 
-  const signUp = async ({ name, email, pass }) => {
-    const response = await fetch("/api/signup", {
+  const logIn = async ({ email, pass }) => {
+    const response = await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: name,
         email: email,
         password: pass,
       }),
     });
     const data = await response.json();
-    return { resStatus: response.status, msg: data.msg };
+    return { resStatus: response.status, msg: data.msg, authToken: data.authToken };
   };
 
   return (
     <div>
       <Head>
-        <title>Sign Up Next Auth</title>
+        <title>Log In Next Auth</title>
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
@@ -67,29 +67,9 @@ export default function SignUp() {
       >
         <Grid item xs={3}>
           <Typography variant="h3" component="h1">
-            Sign Up
+            Log In
           </Typography>
           <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-            <TextField
-              error={errors.name?.message && true}
-              inputRef={register({
-                required: "Name is required",
-                minLength: {
-                  value: 6,
-                  message: "At least 6 chareacters",
-                },
-                maxLength: { value: 70, message: "no more than 70 characters" },
-              })}
-              helperText={errors.name?.message && errors.name.message}
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="name"
-              label="Name"
-              name="name"
-              autoFocus
-            />
             <TextField
               error={errors.email?.message && true}
               inputRef={register({
@@ -136,7 +116,7 @@ export default function SignUp() {
               variant="contained"
               color="primary"
             >
-              Sign Up
+              Log In
             </Button>
             <Button
               fullWidth
@@ -146,7 +126,7 @@ export default function SignUp() {
                 router.push("/login");
               }}
             >
-              Log In
+              Sign Up
             </Button>
             <Snackbar open={alertOpen[0]} autoHideDuration={6000} onClose={handleClose}>
               <MuiAlert elevation={6} variant="filled" onClose={handleClose} severity="error">
