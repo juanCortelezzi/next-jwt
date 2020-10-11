@@ -12,7 +12,7 @@ const validateBody = initMiddleware(
       body("name", "Name must be provided")
         .isLength({ min: 6, max: 70 })
         .withMessage("Name must be between 6 to 70 characters"),
-      body("email", "Email must be provided").isEmail().withMessage("Not an email"),
+      body("email", "Email must be provided").isEmail().withMessage("Email is not an email"),
       body("password", "Password must be provided")
         .isLength({ min: 6, max: 70 })
         .withMessage("Password must be between 6 to 70 characters"),
@@ -26,12 +26,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(400).json({ msg: "Method not available" });
   }
   await validateBody(req, res);
-
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
 
   await dbConnect();
 

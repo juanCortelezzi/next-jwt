@@ -8,6 +8,6 @@ export default function validateMiddleware(validations: any, validationResult: a
       return next();
     }
 
-    res.status(422).json({ errors: errors.array() });
+    res.status(422).json({ msg: errors.array() });
   };
 }

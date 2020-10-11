@@ -1,11 +1,35 @@
-import { Button, TextField, Grid, Typography } from "@material-ui/core";
+import { Button, TextField, Grid, Typography, Snackbar } from "@material-ui/core";
+import MuiAlert from "@material-ui/lab/Alert";
 import { useForm } from "react-hook-form";
 import Head from "next/head";
+import { useState } from "react";
 
 export default function SignUp() {
+  const [alertOpen, setAlertOpen] = useState<[boolean, string]>([false, ""]);
+
+  const handleClose = () => {
+    setAlertOpen([false, ""]);
+  };
+
   const { register, handleSubmit, errors } = useForm();
-  const onSubmit = (data: { name: string; email: string; password: string }) => {
-    signUp({ name: data.name, email: data.email, pass: data.password });
+
+  const onSubmit = async (data: { name: string; email: string; password: string }) => {
+    const { resStatus, msg } = await signUp({
+      name: data.name,
+      email: data.email,
+      pass: data.password,
+    });
+    if (resStatus !== 200) {
+      let errorMsg = "";
+      if (Array.isArray(msg)) {
+        msg.map((e: { value: string; msg: string; param: string; location: string }) => {
+          errorMsg += `${e.msg} `;
+        });
+      } else {
+        errorMsg = msg;
+      }
+      setAlertOpen([true, errorMsg]);
+    }
   };
 
   const signUp = async ({ name, email, pass }) => {
@@ -21,7 +45,7 @@ export default function SignUp() {
       }),
     });
     const data = await response.json();
-    console.log(data);
+    return { resStatus: response.status, msg: data.msg };
   };
 
   return (
@@ -112,6 +136,11 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
+            <Snackbar open={alertOpen[0]} autoHideDuration={6000} onClose={handleClose}>
+              <MuiAlert elevation={6} variant="filled" onClose={handleClose} severity="error">
+                {alertOpen[1]}
+              </MuiAlert>
+            </Snackbar>
           </form>
         </Grid>
       </Grid>
