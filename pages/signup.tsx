@@ -1,18 +1,27 @@
 import { Button, TextField, Grid, Typography } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import Head from "next/head";
-import { useRouter } from "next/router";
 
 export default function SignUp() {
-  const router = useRouter();
-
   const { register, handleSubmit, errors } = useForm();
-  const onSubmit = (data: { email: string; password: string }) => {
-    signUp({ email: data.email, pass: data.password });
+  const onSubmit = (data: { name: string; email: string; password: string }) => {
+    signUp({ name: data.name, email: data.email, pass: data.password });
   };
 
-  const signUp = ({ email, pass }) => {
-    console.log(email, pass);
+  const signUp = async ({ name, email, pass }) => {
+    const response = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        password: pass,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
   };
 
   return (
@@ -35,6 +44,26 @@ export default function SignUp() {
             Sign Up
           </Typography>
           <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+            <TextField
+              error={errors.name?.message && true}
+              inputRef={register({
+                required: "Name is required",
+                minLength: {
+                  value: 6,
+                  message: "At least 6 chareacters",
+                },
+                maxLength: { value: 70, message: "no more than 70 characters" },
+              })}
+              helperText={errors.name?.message && errors.name.message}
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="Name"
+              name="name"
+              autoFocus
+            />
             <TextField
               error={errors.email?.message && true}
               inputRef={register({
@@ -83,19 +112,19 @@ export default function SignUp() {
             >
               Sign Up
             </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              color="primary"
-              onClick={() => {
-                router.push("/login");
-              }}
-            >
-              Log In
-            </Button>
           </form>
         </Grid>
       </Grid>
     </div>
   );
 }
+//<Button
+//fullWidth
+//variant="outlined"
+//color="primary"
+//onClick={() => {
+//router.push("/login");
+//}}
+//>
+//Log In
+//</Button>

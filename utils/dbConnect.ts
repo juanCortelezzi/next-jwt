@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const connection: any = {};
+const connection: { isConnected?: number } = {};
 
 async function dbConnect() {
   if (connection.isConnected) {
@@ -14,6 +14,7 @@ async function dbConnect() {
   });
 
   connection.isConnected = db.connections[0].readyState;
+  console.log(`connected: ${connection.isConnected}`);
 }
 
 export default dbConnect;
