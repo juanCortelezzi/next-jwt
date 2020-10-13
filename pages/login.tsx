@@ -3,10 +3,19 @@ import { useRouter } from "next/router";
 import MuiAlert from "@material-ui/lab/Alert";
 import { Button, TextField, Grid, Typography, Snackbar } from "@material-ui/core";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { InferGetServerSidePropsType, NextPageContext } from "next";
+import { withAuth } from "../components/ssrp";
 
-export default function LogIn() {
+export default function LogIn({ auth }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
+
+  useEffect(() => {
+    if (auth) {
+      setAlertOpen([true, "already logged in"]);
+    }
+  });
+
   const [alertOpen, setAlertOpen] = useState<[boolean, string]>([false, ""]);
 
   const handleClose = () => {
@@ -16,7 +25,7 @@ export default function LogIn() {
   const { register, handleSubmit, errors } = useForm();
 
   const onSubmit = async (data: { email: string; password: string }) => {
-    const { resStatus, msg, authToken } = await logIn({
+    const { resStatus, msg } = await logIn({
       email: data.email,
       pass: data.password,
     });
@@ -31,7 +40,7 @@ export default function LogIn() {
       }
       setAlertOpen([true, errorMsg]);
     } else {
-      console.log(authToken);
+      router.push("/secret");
     }
   };
 
@@ -123,7 +132,7 @@ export default function LogIn() {
               variant="outlined"
               color="primary"
               onClick={() => {
-                router.push("/login");
+                router.push("/signup");
               }}
             >
               Sign Up
@@ -138,4 +147,8 @@ export default function LogIn() {
       </Grid>
     </div>
   );
+}
+
+export async function getServerSideProps(ctx: NextPageContext) {
+  return withAuth(ctx);
 }

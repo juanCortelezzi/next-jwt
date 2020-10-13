@@ -6,6 +6,7 @@ import { body, validationResult } from "express-validator";
 import UserModel from "../../models/user";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 const validateBody = initMiddleware(
   validateMiddleware(
@@ -25,7 +26,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   await validateBody(req, res);
 
-  await dbConnect();
+  try {
+    await dbConnect();
+  } catch {
+    res.status(500).json({ msg: "Ups, something went horribly wrong" });
+  }
 
   const user = await UserModel.findOne({ email: req.body.email });
   if (!user) return res.status(422).json({ msg: "Incorrect Email" });
@@ -33,6 +38,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(422).json({ msg: "Incorrect Password" });
 
-  const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET);
-  res.status(200).json({ authToken: token });
+  const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET, { expiresIn: "1h" });
+
+  res.setHeader(
+    "Set-Cookie",
+    cookie.serialize("auth", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 3600,
+      path: "/",
+    })
+  );
+
+  res.status(200).json({ msg: "Welcome back" });
 }

@@ -31,6 +31,8 @@ export default function SignUp() {
         errorMsg = msg;
       }
       setAlertOpen([true, errorMsg]);
+    } else {
+      router.push("/login");
     }
   };
 
