@@ -1,32 +1,40 @@
 import Head from "next/head";
 import Link from "next/link";
-import { Typography, Box } from "@material-ui/core";
+import { Typography, Button, Grid, Container } from "@material-ui/core";
 
 export default function Home() {
   return (
-    <div>
+    <Container maxWidth="xs">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Typography variant="h2" component="h1">
+      <Typography variant="h2" component="h1" align="center">
         Home
       </Typography>
-      <Box>
-        <Link href="/secret">
-          <a>Secret Route</a>
-        </Link>
-      </Box>
-      <Box>
-        <Link href="/login">
-          <a>Log In</a>
-        </Link>
-      </Box>
-      <Box>
-        <Link href="/signup">
-          <a>Sign Up</a>
-        </Link>
-      </Box>
-    </div>
+      <Grid container direction="column" spacing={4} justify="center" alignItems="stretch">
+        <Grid item>
+          <Link href="/secret" passHref>
+            <Button variant="contained" color="primary" fullWidth>
+              Secret Route
+            </Button>
+          </Link>
+        </Grid>
+        <Grid item>
+          <Link href="/login" passHref>
+            <Button variant="outlined" color="secondary" fullWidth>
+              Log In
+            </Button>
+          </Link>
+        </Grid>
+        <Grid item>
+          <Link href="/signup" passHref>
+            <Button variant="outlined" color="secondary" fullWidth>
+              Sign Up
+            </Button>
+          </Link>
+        </Grid>
+      </Grid>
+    </Container>
   );
 }
